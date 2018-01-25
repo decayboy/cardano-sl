@@ -8,6 +8,7 @@ module Pos.DHT.Workers
 import           Universum
 
 import qualified Data.ByteString.Lazy as BSL
+import           Data.Default (def)
 import           Formatting (sformat, (%))
 import           Mockable (Async, Delay, Fork, Mockable)
 import           Network.Kademlia (takeSnapshot)
@@ -56,7 +57,7 @@ dumpKademliaStateWorker
        )
     => KademliaDHTInstance
     -> (WorkerSpec m, OutSpecs)
-dumpKademliaStateWorker kademliaInst = localOnNewSlotWorker True $ \slotId ->
+dumpKademliaStateWorker kademliaInst = localOnNewSlotWorker def $ \slotId ->
     when (isTimeToDump slotId) $ recoveryCommGuard "dump kademlia state" $ do
         let dumpFile = kdiDumpPath kademliaInst
         logNotice $ sformat ("Dumping kademlia snapshot on slot: "%slotIdF) slotId

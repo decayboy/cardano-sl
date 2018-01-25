@@ -102,16 +102,13 @@ informerWorker =
 -- Block creation worker
 ----------------------------------------------------------------------------
 
--- TODO [CSL-1606] Using 'fork' here is quite bad, it's a temporary solution.
 blkCreatorWorker :: BlockWorkMode ctx m => (WorkerSpec m, OutSpecs)
 blkCreatorWorker =
     onNewSlotWorker True announceBlockOuts $ \slotId sendActions ->
         recoveryCommGuard "onNewSlot worker, blkCreatorWorker" $
-            void $ fork $
             blockCreator slotId sendActions `catchAny` onBlockCreatorException
   where
     onBlockCreatorException = reportOrLogE "blockCreator failed: "
-
 
 blockCreator
     :: BlockWorkMode ctx m

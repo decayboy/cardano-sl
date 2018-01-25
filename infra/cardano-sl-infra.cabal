@@ -127,6 +127,7 @@ library
                       , cardano-report-server >= 0.3.0
                       , conduit
                       , containers
+                      , data-default
                       , directory
                       , dns
                       , ekg-core
