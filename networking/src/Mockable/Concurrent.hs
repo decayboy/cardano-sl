@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NoImplicitPrelude     #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
@@ -44,7 +45,11 @@ module Mockable.Concurrent (
   , mapConcurrently
   , forConcurrently
 
+  -- * Utility functions
+  , timeout
   ) where
+
+import           Universum
 
 import           Control.Exception (AsyncException (..))
 import           Control.Exception.Safe (Exception, MonadCatch, catchAny)
@@ -244,3 +249,9 @@ waitAnyUnexceptional acts = impl
     toAsync = async . forPromise
     forPromise :: ( Mockable Async m, MonadCatch m ) => m a -> m (Maybe a)
     forPromise a = (Just <$> a) `catchAny` (const $ pure Nothing)
+
+-- | This function is analogous to `System.Timeout.timeout`, it's
+-- based on `Race` and `Delay`.
+{-# INLINE timeout #-}
+timeout :: (Mockable Delay m, Mockable Async m, TimeUnit t) => t -> m a -> m (Maybe a)
+timeout t ma = rightToMaybe <$> race (delay t) ma
